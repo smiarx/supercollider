@@ -25,8 +25,6 @@ LinkClock : TempoClock {
 			//reschedule task with this clock
 			this.schedAbs(oldQueue[i], task);
 		};
-
-		^this
 	}
 
 
