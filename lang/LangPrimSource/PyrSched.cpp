@@ -801,11 +801,18 @@ void* TempoClock::Run()
 		high_resolution_clock::duration schedSecs;
 		high_resolution_clock::time_point schedPoint;
 		do {
+#ifdef SC_ABLETON_LINK
+			elapsedBeats = SecsToBeats(elapsedTime() + mAheadOfTime);
+#else
 			elapsedBeats = ElapsedBeats();
+#endif
 			if (elapsedBeats >= slotRawFloat(mQueue->slots)) break;
 
 			//printf("event ready at %g . elapsed beats %g\n", mQueue->slots->uf, elapsedBeats);
 			double wakeTime = BeatsToSecs(slotRawFloat(mQueue->slots));
+#ifdef SC_ABLETON_LINK
+			wakeTime -= mAheadOfTime;
+#endif
 
 			schedSecs = duration_cast<high_resolution_clock::duration>(duration<double>(wakeTime));
 			schedPoint = hrTimeOfInitialization + schedSecs;

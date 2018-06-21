@@ -33,6 +33,16 @@ LinkClock : TempoClock {
 		^this.primitiveFailed
 	}
 
+	aheadOfTime_ { |aheadOfTime|
+		_LinkClock_SetAheadOfTime
+		^this.primitiveFailed
+	}
+
+	aheadOfTime {
+		_LinkClock_GetAheadOfTime
+		^this.primitiveFailed
+	}
+
 	//override TempoClock primitives
 	beats_ { |beats|
 		_LinkClock_SetBeats

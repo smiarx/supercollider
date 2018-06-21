@@ -87,6 +87,9 @@ protected:
 	double mBeats; // beats
 	double mBaseSeconds;
 	double mBaseBeats;
+#ifdef SC_ABLETON_LINK
+	double mAheadOfTime = 0;
+#endif
 	bool mRun;
 	SC_Thread mThread;
 	condition_variable_any mCondition;

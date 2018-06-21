@@ -51,6 +51,8 @@ public:
 	}
 
 	void SetQuantum(double quantum);
+	void SetAheadOfTime(double aheadOfTime);
+	double GetAheadOfTime(void) { return mAheadOfTime; }
 	std::size_t NumPeers() const { return mLink.numPeers(); }
 
 private:
@@ -148,6 +150,11 @@ void LinkClock::SetQuantum(double quantum)
 	mCondition.notify_one();
 }
 
+void LinkClock::SetAheadOfTime(double aheadOfTime){
+	mAheadOfTime = aheadOfTime;
+	mCondition.notify_one();
+}
+
 //Primitives
 int prLinkClock_NumPeers(struct VMGlobals *g, int numArgsPushed);
 int prLinkClock_NumPeers(struct VMGlobals *g, int numArgsPushed)
@@ -185,6 +192,41 @@ int prLinkClock_SetQuantum(struct VMGlobals *g, int numArgsPushed)
 	return errNone;
 }
 
+int prLinkClock_SetAheadOfTime(struct VMGlobals *g, int numArgsPushed);
+int prLinkClock_SetAheadOfTime(struct VMGlobals *g, int numArgsPushed)
+{
+	PyrSlot *a = g->sp - 1;
+	PyrSlot *b = g->sp;
+	LinkClock *clock = (LinkClock*)slotRawPtr(&slotRawObject(a)->slots[1]);
+	if (!clock) {
+		error("clock is not running.\n");
+		return errFailed;
+	}
+
+	double aheadOfTime;
+	int err = slotDoubleVal(b, &aheadOfTime);
+	if(err) return errFailed;
+
+	clock->SetAheadOfTime(aheadOfTime);
+
+	return errNone;
+}
+
+int prLinkClock_GetAheadOfTime(struct VMGlobals *g, int numArgsPushed);
+int prLinkClock_GetAheadOfTime(struct VMGlobals *g, int numArgsPushed)
+{
+	PyrSlot *a = g->sp;
+	LinkClock *clock = (LinkClock*)slotRawPtr(&slotRawObject(a)->slots[1]);
+	if (!clock) {
+		error("clock is not running.\n");
+		return errFailed;
+	}
+
+	SetFloat(a, clock->GetAheadOfTime());
+
+	return errNone;
+}
+
 void initLinkPrimitives()
 {
 	int base, index=0;
@@ -198,6 +240,8 @@ void initLinkPrimitives()
 	definePrimitive(base, index++, "_LinkClock_SetAll", prClock_SetAll<LinkClock>, 4, 0);
 	definePrimitive(base, index++, "_LinkClock_NumPeers", prLinkClock_NumPeers, 1, 0);
 	definePrimitive(base, index++, "_LinkClock_SetQuantum", prLinkClock_SetQuantum, 2, 0);
+	definePrimitive(base, index++, "_LinkClock_SetAheadOfTime", prLinkClock_SetAheadOfTime, 2, 0);
+	definePrimitive(base, index++, "_LinkClock_GetAheadOfTime", prLinkClock_GetAheadOfTime, 1, 0);
 }
 
 #endif
